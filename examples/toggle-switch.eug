@@ -1,0 +1,74 @@
+PartType Promoter;
+PartType RBS;
+PartType Repressor;
+PartType Terminator;
+PartType Reporter;
+
+/** PART LIBRARY **/
+Promoter Ptrc2;
+Promoter P1;
+
+RBS RBS1;
+RBS rbsE;
+RBS rbsB;
+
+Repressor LacI;
+Repressor R1;
+
+Reporter GFPmut3;
+
+Terminator T1T2;
+
+/** RELATIONSHIPS **/
+R1 REPRESSES P1;
+LacI REPRESSES Ptrc2;
+
+
+/*
+ * Published Toggle Switch Device:
+ * -T1T2, -LacI, -RBS1, -P1, Ptrc-2, rbsE, R1, rbsB, GFPmut3, T1T2
+ *
+ * Mentioned Rules:
+ * Different promoters, ribosome binding sites, and/or repressors, 
+ * are used for the various toggle switches.
+ */
+
+Device ToggleSwitch(
+	-Terminator, -Repressor, -RBS, -Promoter, 
+	Promoter, RBS, Repressor, RBS, Reporter, Terminator);
+
+// define some rules
+Rule r(
+	ON ToggleSwitch :
+	
+	// Interaction Rules
+	ToggleSwitch[1] REPRESSES ToggleSwitch[4] 
+		AND
+	ToggleSwitch[6] REPRESSES ToggleSwitch[3] 
+
+		AND
+
+	// Counting/Pairing Rules
+	// - to ensure two difference promoters 
+	P1 WITH Ptrc2
+		AND
+	// - to ensure different RBSs
+	RBS1 EXACTLY 1 AND rbsE EXACTLY 1 AND rbsB EXACTLY 1
+		
+		AND
+		
+    // Positioning Rules
+    // - to ensure correct positioning of RBSs
+    RBS1 NEXTTO LacI AND rbsE NEXTTO R1 AND rbsB NEXTTO GFPmut3		
+			
+);
+
+ 
+// produce all possible toggle-switches
+Device [] lst = product(ToggleSwitch);
+println(lst);
+
+println(lst.size(), " toggle switch specifications generated");
+
+// finally, we visualize the toggle switches using pigeon...
+pigeon(lst);

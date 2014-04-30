@@ -1,0 +1,63 @@
+include "./examples/design-space.h"
+
+/*** NOR-GATE DEVICES ***/
+
+Device RepressingDevice(Promoter, Promoter, RBS, Repressor, Terminator);
+Device ReportingDevice(Promoter, RBS, Reporter, Terminator);
+Device NorGate(RepressingDevice, ReportingDevice);
+ 
+/*** RULES ***/
+
+Rule r(
+    ON NorGate:
+		// INDUCERS
+		araC INDUCES RepressingDevice[0] AND pBad NEXTTO pDntR 
+
+			AND
+
+    	// REPRESSES relationship
+    	RepressingDevice.Repressor REPRESSES ReportingDevice.Promoter
+
+		
+			AND
+
+    	// different RBSs
+    	RepressingDevice.RBS NOTEQUALS ReportingDevice.RBS 
+
+			AND
+			
+		CONTAINS YFP
+		
+			AND
+			
+		CONTAINS TetR
+		
+			AND
+		
+		CONTAINS T1
+			AND	
+		CONTAINS T7
+			AND
+		T7 BEFORE T1
+			
+			AND
+			
+		CONTAINS rbs61100
+			AND
+			
+		CONTAINS rbs61102
+		
+);
+
+/*** PRODUCE ALL VALID NOR-GATE DEVICES ***/
+Device[] lst = product(NorGate, strict);
+
+println(lst.size(), " NOR gates created");
+
+for(num i=0; i<lst.size; i++) {
+    println(lst[i]);
+}
+
+pigeon(lst);
+
+

@@ -1,0 +1,52 @@
+include "./examples/design-space.h";
+
+/** Hierarchical composition of the repressilator **/
+Device RepressilatorUnit(
+	Promoter, Repressor, Terminator, 
+	Promoter, Repressor, Terminator,
+	Promoter, Repressor, Terminator);
+	
+Device ReporterUnit(
+	Promoter, Reporter, Terminator);
+		
+Device Repressilator(
+	RepressilatorUnit, ReporterUnit);
+
+/** RULES **/
+Rule r(
+	ON Repressilator:
+
+		// Repressing Relationships
+		RepressilatorUnit[1] REPRESSES RepressilatorUnit[3]
+			AND
+		RepressilatorUnit[4] REPRESSES RepressilatorUnit[6]
+			AND
+		RepressilatorUnit[7] REPRESSES RepressilatorUnit[0]
+		
+			AND
+		
+		// Order of the Promoters and Repressor	
+		STARTSWITH pLac AND TetR NEXTTO pLac AND
+		LacI NEXTTO pCI AND cI NEXTTO pTetR
+		
+		AND
+		
+		// pTetR represses the Reporting Unit
+		RepressilatorUnit[7] REPRESSES ReporterUnit[0]
+
+			AND
+		
+		// GFP as reporter
+		CONTAINS GFP
+		
+			AND
+
+		// T1 Terminators
+		T1 EXACTLY 4
+);
+	
+/** PRODUCE ALL POSSIBLE REPRESSILATORS **/
+lst = product(Repressilator, strict);
+println(lst.size(), " repressilators where generated...");
+
+pigeon(lst);

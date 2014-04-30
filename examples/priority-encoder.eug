@@ -1,0 +1,183 @@
+/*
+ * Here, we demonstrate Eugene on the Priority Encoder circuit. 
+ * For further information, please refer to:
+ * E. Oberortner et al. "A Rule-based Specification Language for Designing Synthetic Biological Systems"
+ */
+ 
+/*
+ * PART LIBRARY 
+ */
+Property Pigeon(txt);
+
+PartType Promoter(Pigeon);
+PartType RBS(Pigeon);
+PartType Repressor(Pigeon);
+PartType Reporter(Pigeon);
+PartType Terminator(Pigeon);
+
+// Input Promoters
+Promoter p_in0(.Pigeon("p p_in0 14 nl"));
+Promoter p_in1(.Pigeon("p p_in1 14 nl"));
+Promoter p_in2(.Pigeon("p p_in2 14 nl"));
+Promoter p0(.Pigeon("p p0 14 nl"));
+
+
+//Repressible Promoters
+Promoter p1(.Pigeon("p p1 2"));
+Promoter p2(.Pigeon("p p2 1"));
+Promoter p3(.Pigeon("p p3 8"));
+Promoter p4(.Pigeon("p p4 3"));
+Promoter p5(.Pigeon("p p5 4"));
+
+// Repressors
+Repressor c1(.Pigeon("c c1 2"));
+Repressor c2(.Pigeon("c c2 1"));
+Repressor c3(.Pigeon("c c3 8"));
+Repressor c4(.Pigeon("c c4 3"));
+Repressor c5(.Pigeon("c c5 4"));
+
+// Reporters
+Reporter cOut1(.Pigeon("c cOut1 6"));
+Reporter cOut0(.Pigeon("c cOut0 10"));
+
+RBS r1(.Pigeon("r r1 2 nl"));
+RBS r2(.Pigeon("r r2 1 nl"));
+RBS r3(.Pigeon("r r3 8 nl"));
+RBS r4(.Pigeon("r r4 3 nl"));
+RBS r5(.Pigeon("r r5 4 nl"));
+RBS rOut1(.Pigeon("r rOut1 6 nl"));
+RBS rOut0(.Pigeon("r rOut0 10 nl"));
+
+Terminator t1(.Pigeon("t t1 2 nl"));
+Terminator t2(.Pigeon("t t2 1 nl"));
+Terminator t3(.Pigeon("t t3 8 nl"));
+Terminator t4(.Pigeon("t t4 3 nl"));
+Terminator t5(.Pigeon("t t5 4 nl"));
+Terminator tOut1(.Pigeon("t tOut1 6 nl"));
+Terminator tOut0(.Pigeon("t tOut0 10 nl"));
+
+// INDUCERS
+PartType Signal;
+Signal in2;
+Signal in1;
+Signal in0;
+Signal zero;
+
+// RELATIONSHIPS
+in1 INDUCES p_in1;
+in2 INDUCES p_in2;
+in0 INDUCES p_in0;
+zero INDUCES p0;
+
+c1 REPRESSES p1;
+c2 REPRESSES p2;
+c3 REPRESSES p3;
+c4 REPRESSES p4;
+c5 REPRESSES p5;
+
+
+/*
+ *   DEVICE TEMPLATES
+ */
+Device norGate(Promoter, Promoter, RBS, Repressor, Terminator);
+Device outGate(Promoter, RBS, Reporter, Terminator);
+
+Device Out1(norGate, norGate, outGate);
+Device Out0(norGate, norGate, norGate, outGate);
+
+Device PriorityEncoder(Out1, Out0);
+ 
+/*
+ *   we only specify the topology of the Priority Encoder...
+ *   i.e. where the regulation arcs and what inducers are desired...
+ */
+Rule rPriorityEncoder(
+	ON PriorityEncoder:
+		
+		// Rules on Out1
+		
+		in2 INDUCES Out1[0][0]
+			AND
+		in1 INDUCES Out1[0][1]
+			AND
+	    zero INDUCES Out1[1][0]
+			AND
+		Out1[0][3] REPRESSES Out1[1][1]
+			AND
+		Out1[1][3] REPRESSES Out1[2][0]  // change of outGate needed
+
+			AND
+
+		// Rules on Out0
+					
+		in2 INDUCES Out0[0][0]
+			AND
+		in2 INDUCES Out0[1][0]
+			AND
+		in0 INDUCES Out0[1][1]
+			AND
+		Out0[0].Repressor REPRESSES Out0[2][0]
+			AND
+		Out0[1].Repressor REPRESSES Out0[2][1]
+
+			AND
+		
+		// Rules for the Composition
+		Out1[0].Repressor REPRESSES Out0[0][1]
+				
+			AND
+			
+		// pairing of repcessor/promoter pairs
+		cOut1 WITH cOut0
+			AND
+			
+		// pairing of repcessor/promoter pairs
+		c1 WITH p1 AND c2 WITH p2 AND c3 WITH p3 AND c4 WITH p4 AND c5 WITH p5
+
+		
+			AND
+		// positioning of rOut1-cOut1-tOut1 compositions
+		cOut1 WITH rOut1 AND cOut1 WITH tOut1 AND
+		cOut1 NEXTTO rOut1 AND cOut1 NEXTTO tOut1
+			
+			AND
+						
+		// positioning of rOut0-cOut0-tOut0 compositions
+		cOut0 WITH rOut0 AND cOut0 WITH tOut0 AND
+		cOut0 NEXTTO rOut0 AND cOut0 NEXTTO tOut0
+
+			AND		
+								
+		// positioning of r1-c1-t1 triplets
+		c1 WITH r1 AND c1 WITH t1 AND
+		c1 NEXTTO r1 AND c1 NEXTTO t1
+		
+			AND			
+			
+		// positioning of r2-c2-t2 triplets
+		c2 WITH r2 AND c2 WITH t2 AND
+		c2 NEXTTO r2 AND c2 NEXTTO t2
+		
+			AND
+		// positioning of r3-c3-t3 triplets
+		c3 WITH r3 AND c3 WITH t3 AND
+		c3 NEXTTO r3 AND c3 NEXTTO t3
+
+			AND
+		// positioning of r4-c4-t4 triplets
+		c4 WITH r4 AND c4 WITH t4 AND
+		c4 NEXTTO r4 AND c4 NEXTTO t4
+
+			AND
+			
+		// positioning of r5-c5-t5 triplets
+		c5 WITH r5 AND c5 WITH t5 AND
+		c5 NEXTTO r5 AND c5 NEXTTO t5
+			
+);
+
+// currently, we can only search for a limited number of priority encoders
+Device[] lstPriorityEncoders = product(PriorityEncoder, 1);
+
+pigeon(lstPriorityEncoders);
+

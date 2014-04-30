@@ -1,0 +1,36 @@
+include "./examples/design-space.h"
+
+/** Additional parts for the invertase-based NOR Gate **/
+PartType InvertaseSite(Name);
+
+InvertaseSite Bxb1(
+	.Name("Bxb1"));
+	
+InvertaseSite phiC31(
+	.Name("phiC31"));
+	
+
+Device NorGate(
+	Promoter, 
+	InvertaseSite, -Terminator, -InvertaseSite, 
+	InvertaseSite, -Terminator, -InvertaseSite, 
+	RBS, Reporter, Terminator);
+
+Rule rNor(
+	ON NorGate:
+	    // matching invertase sites
+		NorGate[1] MATCHES NorGate[3]
+			AND
+		NorGate[4] MATCHES NorGate[6]
+			AND
+		// different invertase sites
+		Bxb1 WITH phiC31
+			AND
+		// GFP Reporter
+		CONTAINS GFP
+);
+
+Device[] lst = product(NorGate);
+println(lst.size, " solutions");
+println(lst);
+	
