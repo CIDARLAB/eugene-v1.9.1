@@ -14,22 +14,22 @@ public class RunExamples {
 	public static void main(String[] args) {
 
 		// Priority Encoder
-//		new RunExamples().test("./examples/priority-encoder.eug");
+		new RunExamples().test("./examples/priority-encoder.eug");
 
 		// Lu's NOR
-//		new RunExamples().test("./examples/invertase-nor.eug");
+		new RunExamples().test("./examples/invertase-nor.eug");
 
 		// TOGGLE-SWITCH
-//		new RunExamples().test("./examples/toggle-switch.eug");
+		new RunExamples().test("./examples/toggle-switch.eug");
 		
 		// REPRESSILATOR
-//		new RunExamples().test("./examples/repressilator.eug");
+		new RunExamples().test("./examples/repressilator.eug");
 		
 		// NOR Gate
-//		new RunExamples().test("./examples/nor-gate.eug");
+		new RunExamples().test("./examples/nor-gate.eug");
 
 		// Counters
-//		new RunExamples().test("./examples/counters.eug");
+		new RunExamples().test("./examples/counters.eug");
 		
 	}
 
